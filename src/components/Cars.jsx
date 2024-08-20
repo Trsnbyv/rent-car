@@ -4,7 +4,7 @@ import PassengerIcon from "../assets/images/passengers-icon.svg";
 import GearBoxIcon from "../assets/images/gearbox-icon.svg";
 import AirConIcon from "../assets/images/air-con-icon.svg";
 import DoorIcon from "../assets/images/door-icon.svg";
-import ArrowIcon from "../assets/images/arrow-icon.svg"
+import ArrowIcon from "../assets/images/arrow-icon.svg";
 
 const App = () => {
   const [cars, setCars] = useState([]);
@@ -27,18 +27,31 @@ const App = () => {
   }, []);
 
   const fetchCars = async () => {
-    const response = await fetch("http://localhost:5000/cars");
-    const data = await response.json();
-    setCars(data);
+    const localCars = JSON.parse(localStorage.getItem("cars"));
+
+    if (localCars) {
+      setCars(localCars);
+    } else {
+      const response = await fetch("http://localhost:5000/cars");
+      const data = await response.json();
+      setCars(data);
+    }
   };
 
   const handleAddCar = async (e) => {
     e.preventDefault();
+
+    const newCarData = { ...formData, image: formData.image };
+    const existingCars = JSON.parse(localStorage.getItem("cars")) || [];
+    existingCars.push(newCarData);
+    localStorage.setItem("cars", JSON.stringify(existingCars));
+
     await fetch("http://localhost:5000/cars", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(formData),
     });
+
     setFormData({
       name: "",
       passengers: "1",
@@ -82,133 +95,155 @@ const App = () => {
       </h2>
 
       {showModal && (
-        <div className="modal fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-4 rounded w-1/2">
-            <h2 className="text-xl font-bold mb-4">Add Car</h2>
+        <div className="modal fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex items-center justify-center">
+          <div className="bg-white p-4 rounded-[20px] w-[700px]">
+            <h2 className="text-[35px] text-center font-bold mb-4">Add Car</h2>
             <form onSubmit={handleAddCar}>
-              <input
-                type="text"
-                placeholder="Car Name"
-                value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
-                className="border mb-2 p-2 w-full"
-              />
-              <input
-                type="number"
-                placeholder="Price"
-                value={formData.price}
-                onChange={(e) =>
-                  setFormData({ ...formData, price: e.target.value })
-                }
-                className="border mb-2 p-2 w-full"
-              />
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    image: URL.createObjectURL(e.target.files[0]),
-                  })
-                }
-                className="border mb-2 p-2 w-full"
-              />
-              <select
-                value={formData.passengers}
-                onChange={(e) =>
-                  setFormData({ ...formData, passengers: e.target.value })
-                }
-                className="border mb-2 p-2 w-full"
-              >
-                {[...Array(12)].map((_, i) => (
-                  <option key={i + 1} value={i + 1}>
-                    {i + 1} Passenger{i > 0 ? "s" : ""}
+              <div className="flex justify-between mb-2">
+                <input
+                  type="text"
+                  placeholder="Car Name"
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
+                  className="border mb-2 p-3 rounded-[8px] focus:border-blue-500 duration-300 focus:placeholder:text-blue-500 outline-none w-[49%]"
+                />
+                <input
+                  type="number"
+                  placeholder="Price"
+                  value={formData.price}
+                  onChange={(e) =>
+                    setFormData({ ...formData, price: e.target.value })
+                  }
+                  className="border mb-2 p-3 rounded-[8px] focus:border-blue-500 duration-300 focus:placeholder:text-blue-500 outline-none w-[49%]"
+                />
+              </div>
+              <div className="flex justify-between mb-2">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                      setFormData({
+                        ...formData,
+                        image: reader.result,
+                      });
+                    };
+                    if (file) {
+                      reader.readAsDataURL(file); // Convert to base64 string
+                    }
+                  }}
+                  className="border mb-2 p-3 rounded-[8px] focus:border-blue-500 duration-300 focus:placeholder:text-blue-500 outline-none w-[49%]"
+                />
+                <select
+                  value={formData.passengers}
+                  onChange={(e) =>
+                    setFormData({ ...formData, passengers: e.target.value })
+                  }
+                  className="border mb-2 p-3 rounded-[8px] focus:border-blue-500 duration-300 focus:placeholder:text-blue-500 outline-none w-[49%]"
+                >
+                  {[...Array(12)].map((_, i) => (
+                    <option key={i + 1} value={i + 1}>
+                      {i + 1} Passenger{i > 0 ? "s" : ""}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex justify-between mb-2">
+                <select
+                  value={formData.transmission}
+                  onChange={(e) =>
+                    setFormData({ ...formData, transmission: e.target.value })
+                  }
+                  className="border mb-2 p-3 rounded-[8px] focus:border-blue-500 duration-300 focus:placeholder:text-blue-500 outline-none w-[49%]"
+                >
+                  <option value="Auto">Auto</option>
+                  <option value="Manual">Manual</option>
+                </select>
+                <select
+                  value={formData.airConditioning}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      airConditioning: e.target.value,
+                    })
+                  }
+                  className="border mb-2 p-3 rounded-[8px] focus:border-blue-500 duration-300 focus:placeholder:text-blue-500 outline-none w-[49%]"
+                >
+                  <option value="Air Conditioning">Air Conditioning</option>
+                  <option value="No Air Conditioning">
+                    No Air Conditioning
                   </option>
-                ))}
-              </select>
-              <select
-                value={formData.transmission}
-                onChange={(e) =>
-                  setFormData({ ...formData, transmission: e.target.value })
-                }
-                className="border mb-2 p-2 w-full"
-              >
-                <option value="Auto">Auto</option>
-                <option value="Manual">Manual</option>
-              </select>
-              <select
-                value={formData.airConditioning}
-                onChange={(e) =>
-                  setFormData({ ...formData, airConditioning: e.target.value })
-                }
-                className="border mb-2 p-2 w-full"
-              >
-                <option value="Air Conditioning">Air Conditioning</option>
-                <option value="No Air Conditioning">No Air Conditioning</option>
-              </select>
-              <select
-                value={formData.doors}
-                onChange={(e) =>
-                  setFormData({ ...formData, doors: e.target.value })
-                }
-                className="border mb-2 p-2 w-full"
-              >
-                <option value="2">2 Doors</option>
-                <option value="4">4 Doors</option>
-              </select>
-              <select
-                value={formData.rating}
-                onChange={(e) =>
-                  setFormData({ ...formData, rating: e.target.value })
-                }
-                className="border mb-2 p-2 w-full"
-              >
-                {[...Array(5)].map((_, i) => (
-                  <option key={i + 1} value={i + 1}>
-                    {i + 1} Star{i > 0 ? "s" : ""}
-                  </option>
-                ))}
-              </select>
+                </select>
+              </div>
+              <div className="flex justify-between mb-2">
+                <select
+                  value={formData.doors}
+                  onChange={(e) =>
+                    setFormData({ ...formData, doors: e.target.value })
+                  }
+                  className="border mb-2 p-3 rounded-[8px] focus:border-blue-500 duration-300 focus:placeholder:text-blue-500 outline-none w-[49%]"
+                >
+                  <option value="2">2 Doors</option>
+                  <option value="4">4 Doors</option>
+                </select>
+                <select
+                  value={formData.rating}
+                  onChange={(e) =>
+                    setFormData({ ...formData, rating: e.target.value })
+                  }
+                  className="border mb-2 p-3 rounded-[8px] focus:border-blue-500 duration-300 focus:placeholder:text-blue-500 outline-none w-[49%]"
+                >
+                  {[...Array(5)].map((_, i) => (
+                    <option key={i + 1} value={i + 1}>
+                      {i + 1} Star{i > 0 ? "s" : ""}
+                    </option>
+                  ))}
+                </select>
+              </div>
               <input
                 placeholder="Reviews"
                 value={formData.reviews}
                 onChange={(e) =>
                   setFormData({ ...formData, reviews: e.target.value })
                 }
-                className="border mb-2 p-2 w-full"
+                className="border block m-auto mb-4 p-3 rounded-[8px] focus:border-blue-500 duration-300 focus:placeholder:text-blue-500 outline-none w-[49%] "
               />
-              <button
-                type="submit"
-                className="bg-blue-500 text-white p-2 rounded"
-              >
-                Add Car
-              </button>
-              <button
-                type="button"
-                className="bg-red-500 text-white p-2 rounded ml-2"
-                onClick={() => setShowModal(false)}
-              >
-                Close
-              </button>
+              <div className="flex justify-center gap-3">
+                <button
+                  type="submit"
+                  className="bg-blue-500 border-[2px] border-transparent hover:border-blue-500 duration-300 hover:bg-white hover:text-blue-500 text-white py-3 w-[200px] rounded-[10px]"
+                >
+                  Add Car
+                </button>
+                <button
+                  type="button"
+                  className="bg-red-500 border-[2px] border-transparent hover:border-red-500 duration-300 hover:bg-white hover:text-red-500 text-white py-3 w-[200px] rounded-[10px]"
+                  onClick={() => setShowModal(false)}
+                >
+                  Close
+                </button>
+              </div>
             </form>
           </div>
         </div>
       )}
 
-      <div className="flex justify-between flex-wrap w-[1200px] mx-auto gap-7">
+      <div className="flex  flex-wrap w-[1200px] mx-auto gap-7">
         {cars.slice(0, showAll ? cars.length : 4).map((car) => (
           <div
             key={car.id}
             className="car-card duration-300 w-[276px] bg-white p-4 rounded-[16px]"
           >
             <img
-              src={car.image}
+              src={car.image || ""}
               alt={car.name}
-              width={224}
-              height={112}
-              className="h-[112px] m-auto object-cover mb-[25px] rounded-[16px]"
+              width={234}
+              height={120}
+              className="h-[120px] m-auto object-cover mb-[25px] rounded-[16px]"
             />
             <h3 className="text-[16px] font-medium text-[#262626] mb-3">
               {car.name}
