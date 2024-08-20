@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-display: swap;
+  font-family: "Poppins";
+  font-style: normal;
+  font-weight: 400;
+  src: url("../src/assets/fonts/poppins-v21-latin-regular.woff2")
+    format("woff2");
+}
+
+@font-face {
+  font-display: swap;
+  font-family: "Poppins";
+  font-style: normal;
+  font-weight: 500;
+  src: url("../src/assets/fonts/poppins-v21-latin-500.woff2") format("woff2");
+}
+
+@font-face {
+  font-display: swap;
+  font-family: "Poppins";
+  font-style: normal;
+  font-weight: 600;
+  src: url("../src/assets/fonts/poppins-v21-latin-600.woff2") format("woff2");
+}
+
+body{
+  font-family: "Poppins";
+}
+.car-card{
+  box-shadow: 0 12px 24px 0 #104C8B29;
+}
+.car-card:hover{
+  box-shadow: 0 15px 44px 2px #104C8B29;
+}
