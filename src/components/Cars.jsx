@@ -6,7 +6,7 @@ import AirConIcon from "../assets/images/air-con-icon.svg";
 import DoorIcon from "../assets/images/door-icon.svg";
 import ArrowIcon from "../assets/images/arrow-icon.svg";
 
-const App = () => {
+const Cars = () => {
   const [cars, setCars] = useState([]);
   const [showAll, setShowAll] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -325,4 +325,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default Cars;
